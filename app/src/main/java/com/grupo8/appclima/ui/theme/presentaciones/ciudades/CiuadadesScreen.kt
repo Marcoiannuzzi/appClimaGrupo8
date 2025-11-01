@@ -32,7 +32,7 @@ fun CiudadesScreen(navController: NavController, ciudades: List<CiudadVm>, modif
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(modifier = modifier.align(Alignment.CenterHorizontally),
-            text = "Ciudades")
+            text = "El Clima en tu Ciudad")
         FiltroCiudad(ciudad = ciudadSeleccionada, onCityChange = {
             ciudadSeleccionada = it
         })
