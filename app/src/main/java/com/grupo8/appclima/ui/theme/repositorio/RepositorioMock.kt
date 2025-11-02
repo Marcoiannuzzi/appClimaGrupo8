@@ -7,17 +7,17 @@ import com.grupo8.appclima.ui.theme.repositorio.modelos.ListForecast
 class RepositorioMock  : Repositorio {
 
     val cordoba = Ciudad(name = "Cordoba",
-        lat = -23.0f,
-        lon = -24.3f,
+        lat = -23.0,
+        lon = -24.3,
         country = "Argentina")
     val bsAs = Ciudad(name = "Buenos Aires",
-        lat = -23.0f,
-        lon = -24.3f,
+        lat = -23.0,
+        lon = -24.3,
         country = "Argentina")
     val laPlata = Ciudad(
         name = "La Plata",
-        lat = -23.0f,
-        lon = -24.3f,
+        lat = -23.0,
+        lon = -24.3,
         country = "Argentina"
     )
 

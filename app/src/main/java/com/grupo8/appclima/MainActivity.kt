@@ -7,18 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.grupo8.appclima.ui.theme.AppClimaGrupo8Theme
-import com.grupo8.appclima.ui.theme.presentaciones.ciudades.CiudadesScreen
-import com.grupo8.appclima.ui.theme.presentaciones.ciudades.ciudades
-import com.grupo8.appclima.ui.theme.presentaciones.clima.ClimaScreen
-import com.grupo8.appclima.ui.theme.presentaciones.clima.climaVm
+import com.grupo8.appclima.ui.theme.presentaciones.ciudades.CiudadesPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,32 +30,24 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ){
                         composable(route = "ciudades"){
-                            CiudadesScreen(navController, ciudades, modifier = Modifier)
+                            CiudadesPage(navController = navController)
                         }
-                        composable(route = "clima?ciudadId={ciudadId}"){
-                            val ciudad = it.arguments?.getString("ciudadId") ?: ""
+                        composable(route = "clima?lat={lat}&lon={lon}&ciudad={ciudad}",
+                                arguments =  listOf(
+                                navArgument("lat") { type= NavType.FloatType },
+                                navArgument("lon") { type= NavType.FloatType },
+                                navArgument("ciudad") { type= NavType.StringType }
+                        )
+                        ){
+                            val ciudad = it.arguments?.getString("ciudad") ?: ""
+                            val lat = it.arguments?.getFloat("lat") ?: 0.0f
+                            val lon = it.arguments?.getFloat("lon") ?: 0.0f
 
-                            ClimaScreen(navController, climaVm = climaVm, modifier = Modifier)
+                            //ClimaScreen(navController, lat = lat, lon = lon, ciudad = ciudad)
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppClimaGrupo8Theme {
-        Greeting("Android")
     }
 }
