@@ -14,18 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.grupo8.appclima.ui.theme.Purple40
 import com.grupo8.appclima.ui.theme.Purple80
+import com.grupo8.appclima.ui.theme.repositorio.modelos.Ciudad
 
 @Composable
-fun CiudadCard(ciudad: CiudadVm, onClickAction: () -> Unit) {
+fun CiudadCard(ciudad: Ciudad, onClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()
         .background(color = Purple40, shape = RoundedCornerShape(10.dp))
-        .clickable { onClickAction() }
         .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = ciudad.nombre, color = Purple80)
-        Text(text = ciudad.descripcion, color = Purple80)
+        Text(text = ciudad.name, color = Purple80)
+        Text(text = ciudad.country, color = Purple80)
 
     }
 }
