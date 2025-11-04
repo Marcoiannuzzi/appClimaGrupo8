@@ -1,5 +1,6 @@
 package com.grupo8.appclima.ui.theme.presentaciones.clima
 
 sealed class ClimaIntencion {
-    object actualizarClima: ClimaIntencion()
+    data object Volver : ClimaIntencion()
+    //Futuras interacciones ejemplo Compartir o Actualizar
 }

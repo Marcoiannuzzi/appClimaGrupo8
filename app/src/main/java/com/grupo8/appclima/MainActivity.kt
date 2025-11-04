@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.grupo8.appclima.ui.theme.AppClimaGrupo8Theme
 import com.grupo8.appclima.ui.theme.presentaciones.ciudades.CiudadesPage
+import com.grupo8.appclima.ui.theme.presentaciones.clima.ClimaPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,18 +33,20 @@ class MainActivity : ComponentActivity() {
                         composable(route = "ciudades"){
                             CiudadesPage(navController = navController)
                         }
-                        composable(route = "clima?lat={lat}&lon={lon}&ciudad={ciudad}",
-                                arguments =  listOf(
+
+                        composable(
+                            route = "clima/{lat}/{lon}/{ciudad}",
+                            arguments =  listOf(
                                 navArgument("lat") { type= NavType.FloatType },
                                 navArgument("lon") { type= NavType.FloatType },
                                 navArgument("ciudad") { type= NavType.StringType }
-                        )
+                            )
                         ){
                             val ciudad = it.arguments?.getString("ciudad") ?: ""
                             val lat = it.arguments?.getFloat("lat") ?: 0.0f
                             val lon = it.arguments?.getFloat("lon") ?: 0.0f
 
-                            //ClimaScreen(navController, lat = lat, lon = lon, ciudad = ciudad)
+                            ClimaPage(navController, lat = lat, lon = lon, ciudad = ciudad)
                         }
                     }
                 }

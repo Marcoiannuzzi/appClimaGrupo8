@@ -50,7 +50,7 @@ class CiudadesViewModel(
 
     private fun seleccionar(ciudad: Ciudad){
         navHostController.navigate(
-            route = "clima/${ciudad.lat}/${ciudad.lon}/${ciudad.name}"
+            route = "clima/${ciudad.lat.toFloat()}/${ciudad.lon.toFloat()}/${ciudad.name}"
         )
     }
 

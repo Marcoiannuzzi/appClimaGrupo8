@@ -8,17 +8,24 @@ import com.grupo8.appclima.ui.theme.repositorio.RepositorioApi
 @Composable
 fun ClimaPage(
     navController: NavHostController,
+    lat: Float,
+    lon: Float,
+    ciudad: String
 ){
-//    var viewModel = viewModel<ClimaViewModel>(
-//        factory = CiudadesViewModelFactory(
-//            repositorio = RepositorioApi(),
-//            navController)
-//    )
-//
-//    ClimaView(
-//        estado = viewModel.uiState
-//    ){ intencion ->
-//        viewModel.ejecutar(intencion)
-//
-//    }
+    val viewModel: ClimaViewModel = viewModel(
+        factory = ClimaViewModelFactory(
+            repositorio = RepositorioApi(),
+            navController = navController,
+            lat = lat,
+            lon = lon,
+            ciudad = ciudad
+        )
+    )
+
+    ClimaView(
+        estado = viewModel.uiState,
+        ciudad = ciudad
+    ){ intencion ->
+        viewModel.ejecutar(intencion)
+    }
 }
