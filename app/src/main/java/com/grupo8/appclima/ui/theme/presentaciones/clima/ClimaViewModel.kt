@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.grupo8.appclima.ui.theme.repositorio.Repositorio
 import kotlinx.coroutines.launch
+import android.content.Context
 
 class ClimaViewModel(
     private val repositorio: Repositorio,
@@ -45,9 +46,11 @@ class ClimaViewModel(
         }
     }
 
-    fun ejecutar(intencion: ClimaIntencion) {
+    fun ejecutar(intencion: ClimaIntencion, context: Context) {
         when (intencion) {
             ClimaIntencion.Volver -> volverASeleccionarCiudad()
+            is ClimaIntencion.Compartir -> compartirPronostico(intencion.texto, context)
+
         }
     }
 
@@ -70,4 +73,13 @@ class ClimaViewModelFactory(
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
+}
+
+
+private fun compartirPronostico(texto: String, context: android.content.Context) {
+    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(android.content.Intent.EXTRA_TEXT, texto)
+    }
+    context.startActivity(android.content.Intent.createChooser(intent, "Compartir pronóstico"))
 }

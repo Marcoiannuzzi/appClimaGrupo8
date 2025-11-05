@@ -1,5 +1,6 @@
 package com.grupo8.appclima.ui.theme.presentaciones.clima
 
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -17,13 +18,16 @@ import com.grupo8.appclima.ui.theme.repositorio.modelos.Clima
 import com.grupo8.appclima.ui.theme.repositorio.modelos.ListForecast
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ClimaView(
     estado: ClimaEstado,
     ciudad: String,
-    onAction: (ClimaIntencion) -> Unit
+    onAction: (ClimaIntencion, android.content.Context) -> Unit
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,11 +56,15 @@ fun ClimaView(
                     PronosticoProximosDias(pronostico = estado.datos.pronostico)
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    val clima = estado.datos.clima
                     // Botones de acción
-                    Button(onClick = { /* TODO: Implementar Compartir */ }) {
+                    Button(onClick = {
+                        val texto = generarTextoCompartir(ciudad, clima)
+                        onAction(ClimaIntencion.Compartir(texto), context)
+                    }) {
                         Text(text = "Compartir")
                     }
-                    Button(onClick = { onAction(ClimaIntencion.Volver) }) {
+                    Button(onClick = { onAction(ClimaIntencion.Volver, context) }) {
                         Text(text = "Cambiar de ciudad")
                     }
                 }
@@ -126,4 +134,20 @@ fun PronosticoItem(forecast: ListForecast) {
             }
         }
     }
+}
+
+
+fun generarTextoCompartir(ciudad: String, clima: com.grupo8.appclima.ui.theme.repositorio.modelos.Clima): String {
+    val descripcion = clima.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "No disponible"
+    val temp = clima.main.temp.toInt()
+    val max = clima.main.temp_max.toInt()
+    val min = clima.main.temp_min.toInt()
+
+    return """
+        ☀️ Pronóstico del clima en $ciudad:
+        Temperatura actual: $temp°C
+        Máxima: $max°C / Mínima: $min°C
+        Condición: $descripcion
+        Compartido desde AppClima 🌦️
+    """.trimIndent()
 }

@@ -22,10 +22,7 @@ fun ClimaPage(
         )
     )
 
-    ClimaView(
-        estado = viewModel.uiState,
-        ciudad = ciudad
-    ){ intencion ->
-        viewModel.ejecutar(intencion)
+    ClimaView(estado = viewModel.uiState, ciudad = ciudad) { intencion, context ->
+        viewModel.ejecutar(intencion, context)
     }
 }
