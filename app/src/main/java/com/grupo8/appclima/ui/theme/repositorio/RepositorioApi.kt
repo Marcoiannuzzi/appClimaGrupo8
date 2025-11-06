@@ -42,6 +42,22 @@ class RepositorioApi : Repositorio {
         }
     }
 
+    override suspend fun buscarCiudadPorCoordenadas(lat: Double, lon: Double): List<Ciudad> {
+        val respuesta = cliente.get("https://api.openweathermap.org/geo/1.0/reverse"){
+            parameter("lat",lat)
+            parameter("lon",lon)
+            parameter("limit",5)
+            parameter("appid",apiKey)
+        }
+
+        if (respuesta.status == HttpStatusCode.OK){
+            val ciudades = respuesta.body<List<Ciudad>>()
+            return ciudades
+        }else{
+            throw Exception()
+        }
+    }
+
     override suspend fun traerClima(lat: Float, lon: Float): Clima {
         val respuesta = cliente.get("https://api.openweathermap.org/data/2.5/weather"){
             parameter("lat",lat)

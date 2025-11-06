@@ -52,7 +52,7 @@ fun ClimaView(
                     PronosticoProximosDias(pronostico = estado.datos.pronostico)
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Botones de acción
+                    // Botones
                     Button(onClick = { /* TODO: Implementar Compartir */ }) {
                         Text(text = "Compartir")
                     }
@@ -87,7 +87,6 @@ fun DetalleClimaHoy(clima: Clima) {
 
 @Composable
 fun PronosticoProximosDias(pronostico: List<ListForecast>) {
-    // Agrupamos por día para no mostrar varias entradas para el mismo día
     val pronosticoDiario = pronostico.distinctBy {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it.dt * 1000))
     }

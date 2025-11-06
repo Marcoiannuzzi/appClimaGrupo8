@@ -23,6 +23,9 @@ class CiudadesViewModel(
         when(intencion){
             is CiudadesIntencion.Buscar -> buscar(nombre = intencion.nombre)
             is CiudadesIntencion.Seleccionar -> seleccionar(ciudad = intencion.ciudad)
+
+            is CiudadesIntencion.BuscarPorCoordenadas -> buscarPorCoordenadas(intencion.lat, intencion.lon)
+            else -> {}
         }
     }
 
@@ -48,6 +51,24 @@ class CiudadesViewModel(
         }
     }
 
+    // Función añadida
+    private fun buscarPorCoordenadas(lat: Double, lon: Double) {
+        uiState = CiudadesEstado.Cargando
+        viewModelScope.launch {
+            try {
+                ciudades = repositorio.buscarCiudadPorCoordenadas(lat, lon)
+                if (ciudades.isEmpty()) {
+                    uiState = CiudadesEstado.Vacio
+                } else {
+                    uiState = CiudadesEstado.Exitoso(ciudades)
+                }
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+                uiState = CiudadesEstado.Error(exception.message ?: "error desconocido")
+            }
+        }
+    }
+
     private fun seleccionar(ciudad: Ciudad){
         navHostController.navigate(
             route = "clima/${ciudad.lat.toFloat()}/${ciudad.lon.toFloat()}/${ciudad.name}"
@@ -55,7 +76,6 @@ class CiudadesViewModel(
     }
 
 }
-
 
 @Suppress("UNCHECKED_CAST")
 class CiudadesViewModelFactory(
@@ -68,4 +88,4 @@ class CiudadesViewModelFactory(
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
-    }
+}
