@@ -1,6 +1,6 @@
 package com.grupo8.appclima.ui.theme.presentaciones.clima
 
-import androidx.compose.foundation.background
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -11,8 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,16 +18,16 @@ import com.grupo8.appclima.ui.theme.repositorio.modelos.Clima
 import com.grupo8.appclima.ui.theme.repositorio.modelos.ListForecast
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ClimaView(
     estado: ClimaEstado,
     ciudad: String,
-    onAction: (ClimaIntencion) -> Unit
+    onAction: (ClimaIntencion, android.content.Context) -> Unit
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -58,11 +56,15 @@ fun ClimaView(
                     PronosticoProximosDias(pronostico = estado.datos.pronostico)
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    val clima = estado.datos.clima
                     // Botones de acción
-                    Button(onClick = { /* TODO: Implementar Compartir */ }) {
+                    Button(onClick = {
+                        val texto = generarTextoCompartir(ciudad, clima)
+                        onAction(ClimaIntencion.Compartir(texto), context)
+                    }) {
                         Text(text = "Compartir")
                     }
-                    Button(onClick = { onAction(ClimaIntencion.Volver) }) {
+                    Button(onClick = { onAction(ClimaIntencion.Volver, context) }) {
                         Text(text = "Cambiar de ciudad")
                     }
                 }
@@ -93,27 +95,15 @@ fun DetalleClimaHoy(clima: Clima) {
 
 @Composable
 fun PronosticoProximosDias(pronostico: List<ListForecast>) {
+    // Agrupamos por día para no mostrar varias entradas para el mismo día
     val pronosticoDiario = pronostico.distinctBy {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it.dt * 1000))
-    }.take(5)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Próximos 5 días",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        GraficoPronostico(pronosticoDiario)
-        Spacer(modifier = Modifier.height(16.dp))
-
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Próximos 5 días", fontSize = 20.sp, fontWeight = FontWeight.Medium)
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(pronosticoDiario) { forecast ->
                 PronosticoItem(forecast)
@@ -121,8 +111,6 @@ fun PronosticoProximosDias(pronostico: List<ListForecast>) {
         }
     }
 }
-
-
 
 @Composable
 fun PronosticoItem(forecast: ListForecast) {
@@ -148,46 +136,18 @@ fun PronosticoItem(forecast: ListForecast) {
     }
 }
 
-@Composable
-fun GraficoPronostico(pronostico: List<ListForecast>) {
-    // Tomamos solo 5 días
-    val dias = pronostico.take(5)
-    if (dias.isEmpty()) return
 
-    val maxTemp = dias.maxOf { it.main.temp_max }
-    val minTemp = dias.minOf { it.main.temp_min }
+fun generarTextoCompartir(ciudad: String, clima: com.grupo8.appclima.ui.theme.repositorio.modelos.Clima): String {
+    val descripcion = clima.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "No disponible"
+    val temp = clima.main.temp.toInt()
+    val max = clima.main.temp_max.toInt()
+    val min = clima.main.temp_min.toInt()
 
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .background(Color(0xFFEAF2F8))
-    ) {
-        val ancho = size.width
-        val alto = size.height
-        val espacio = ancho / (dias.size - 1)
-
-        val pathMax = Path()
-        val pathMin = Path()
-
-        dias.forEachIndexed { index, dia ->
-            val x = index * espacio
-            val yMax = alto - ((dia.main.temp_max - minTemp) / (maxTemp - minTemp) * alto).toFloat()
-            val yMin = alto - ((dia.main.temp_min - minTemp) / (maxTemp - minTemp) * alto).toFloat()
-
-            if (index == 0) {
-                pathMax.moveTo(x, yMax)
-                pathMin.moveTo(x, yMin)
-            } else {
-                pathMax.lineTo(x, yMax)
-                pathMin.lineTo(x, yMin)
-            }
-        }
-
-        // Línea de temperatura máxima
-        drawPath(pathMax, color = Color.Red, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f))
-
-        // Línea de temperatura mínima
-        drawPath(pathMin, color = Color.Blue, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f))
-    }
+    return """
+        ☀️ Pronóstico del clima en $ciudad:
+        Temperatura actual: $temp°C
+        Máxima: $max°C / Mínima: $min°C
+        Condición: $descripcion
+        Compartido desde AppClima 🌦️
+    """.trimIndent()
 }
