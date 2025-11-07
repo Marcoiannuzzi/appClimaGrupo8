@@ -30,6 +30,10 @@ class RepositorioMock  : Repositorio {
         return ciudades.filter { it.name.contains(ciudad,ignoreCase = true) }
     }
 
+    override suspend fun buscarCiudadPorCoordenadas(lat: Double, lon: Double): List<Ciudad> {
+        return listOf(bsAs)
+    }
+
     override suspend fun traerClima(lat: Float, lon: Float): Clima {
         TODO("Not yet implemented")
     }
@@ -43,6 +47,11 @@ class RepositorioMock  : Repositorio {
 class RepositorioMockError  : Repositorio {
 
     override suspend fun buscarCiudad(ciudad: String): List<Ciudad> {
+        throw Exception()
+    }
+
+    // Implementación Mock añadida
+    override suspend fun buscarCiudadPorCoordenadas(lat: Double, lon: Double): List<Ciudad> {
         throw Exception()
     }
 

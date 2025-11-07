@@ -1,6 +1,6 @@
 package com.grupo8.appclima.ui.theme.presentaciones.clima
 
-import android.content.Intent
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -53,8 +53,9 @@ fun ClimaView(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Gráfico (pronóstico)
-                    PronosticoProximosDias(pronostico = estado.datos.pronostico)
+                    GraficoPronostico(pronostico = estado.datos.pronostico)
                     Spacer(modifier = Modifier.height(24.dp))
+                    PronosticoProximosDias(pronostico = estado.datos.pronostico)
 
                     val clima = estado.datos.clima
                     // Botones de acción
@@ -151,3 +152,6 @@ fun generarTextoCompartir(ciudad: String, clima: com.grupo8.appclima.ui.theme.re
         Compartido desde AppClima 🌦️
     """.trimIndent()
 }
+
+
+

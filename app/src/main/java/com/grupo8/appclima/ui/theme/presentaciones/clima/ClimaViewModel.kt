@@ -33,7 +33,6 @@ class ClimaViewModel(
                 val climaActual = repositorio.traerClima(lat, lon)
                 val pronostico = repositorio.traerPronostico(ciudad)
 
-                // Una vez que ambos terminan, actualizamos el estado a Exitoso
                 uiState = ClimaEstado.Exitoso(
                     datos = PronosticoCompleto(
                         clima = climaActual,
