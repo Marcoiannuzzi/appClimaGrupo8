@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.grupo8.appclima.ui.theme.repositorio.RepositorioApi
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
 fun ClimaPage(
@@ -12,9 +14,10 @@ fun ClimaPage(
     lon: Float,
     ciudad: String
 ){
+    val context = LocalContext.current
     val viewModel: ClimaViewModel = viewModel(
         factory = ClimaViewModelFactory(
-            repositorio = RepositorioApi(),
+            repositorio = RepositorioApi(context),
             navController = navController,
             lat = lat,
             lon = lon,

@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import com.grupo8.appclima.ui.theme.repositorio.Repositorio
 import com.grupo8.appclima.ui.theme.repositorio.modelos.Ciudad
 import kotlinx.coroutines.launch
+import com.grupo8.appclima.ui.theme.repositorio.CiudadGuardada
 
 class CiudadesViewModel(
     val repositorio: Repositorio,
@@ -50,8 +51,6 @@ class CiudadesViewModel(
             }
         }
     }
-
-    // Función añadida
     private fun buscarPorCoordenadas(lat: Double, lon: Double) {
         uiState = CiudadesEstado.Cargando
         viewModelScope.launch {
@@ -70,6 +69,15 @@ class CiudadesViewModel(
     }
 
     private fun seleccionar(ciudad: Ciudad){
+        viewModelScope.launch {
+            repositorio.guardarUltimaCiudad(
+                CiudadGuardada(
+                    nombre = ciudad.name,
+                    lat = ciudad.lat.toFloat(),
+                    lon = ciudad.lon.toFloat()
+                )
+            )
+        }
         navHostController.navigate(
             route = "clima/${ciudad.lat.toFloat()}/${ciudad.lon.toFloat()}/${ciudad.name}"
         )

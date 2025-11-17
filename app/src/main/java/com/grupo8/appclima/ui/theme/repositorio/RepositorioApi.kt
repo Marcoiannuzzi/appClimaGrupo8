@@ -1,5 +1,6 @@
 package com.grupo8.appclima.ui.theme.repositorio
 
+import android.content.Context
 import com.grupo8.appclima.ui.theme.repositorio.modelos.Ciudad
 import com.grupo8.appclima.ui.theme.repositorio.modelos.Clima
 import com.grupo8.appclima.ui.theme.repositorio.modelos.ForecastDTO
@@ -11,12 +12,12 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 
-//val API_URL = "http://api.openweathermap.org/geo/1.0/direct?q={city%20name}&limit={limit}&appid={API%20key}"
+class RepositorioApi(context: Context) : Repositorio {
 
-class RepositorioApi : Repositorio {
-
+    private val preferencias = PreferenciasUsuario(context)
     private val apiKey = "58ddb70760aba34094cdeff2cb86f706"
 
     private val cliente = HttpClient(){
@@ -86,6 +87,13 @@ class RepositorioApi : Repositorio {
         }else{
             throw Exception()
         }
+    }
 
+    override suspend fun guardarUltimaCiudad(ciudad: CiudadGuardada) {
+        preferencias.guardarUltimaCiudad(ciudad)
+    }
+
+    override fun obtenerUltimaCiudad(): Flow<CiudadGuardada?> {
+        return preferencias.leerUltimaCiudad
     }
 }

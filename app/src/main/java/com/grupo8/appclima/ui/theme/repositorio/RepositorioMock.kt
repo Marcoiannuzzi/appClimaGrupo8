@@ -3,6 +3,8 @@ package com.grupo8.appclima.ui.theme.repositorio
 import com.grupo8.appclima.ui.theme.repositorio.modelos.Ciudad
 import com.grupo8.appclima.ui.theme.repositorio.modelos.Clima
 import com.grupo8.appclima.ui.theme.repositorio.modelos.ListForecast
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class RepositorioMock  : Repositorio {
 
@@ -41,6 +43,15 @@ class RepositorioMock  : Repositorio {
     override suspend fun traerPronostico(nombre: String): List<ListForecast> {
         TODO("Not yet implemented")
     }
+
+    override suspend fun guardarUltimaCiudad(ciudad: CiudadGuardada) {
+        // En el mock, no necesitamos hacer nada, solo cumplir el contrato.
+    }
+
+    override fun obtenerUltimaCiudad(): Flow<CiudadGuardada?> {
+        // Simulamos que no hay ninguna ciudad guardada.
+        return flowOf(null)
+    }
 }
 
 
@@ -50,7 +61,6 @@ class RepositorioMockError  : Repositorio {
         throw Exception()
     }
 
-    // Implementación Mock añadida
     override suspend fun buscarCiudadPorCoordenadas(lat: Double, lon: Double): List<Ciudad> {
         throw Exception()
     }
@@ -61,5 +71,13 @@ class RepositorioMockError  : Repositorio {
 
     override suspend fun traerPronostico(nombre: String): List<ListForecast> {
         throw Exception()
+    }
+
+    override suspend fun guardarUltimaCiudad(ciudad: CiudadGuardada) {
+        throw Exception("Error al guardar en el mock")
+    }
+
+    override fun obtenerUltimaCiudad(): Flow<CiudadGuardada?> {
+        throw Exception("Error al obtener del mock")
     }
 }
