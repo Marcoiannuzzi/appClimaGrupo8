@@ -1,9 +1,9 @@
 package com.grupo8.appclima.ui.theme.presentaciones.clima
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -11,35 +11,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-
 import com.grupo8.appclima.ui.theme.repositorio.modelos.ListForecast
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun GraficoPronostico(pronostico: List<ListForecast>) {
-    // Tomamos solo 5 días
-    val dias = pronostico.take(5)
-    if (dias.isEmpty()) return
+    if (pronostico.isEmpty()) return
 
-    val maxTemp = dias.maxOf { it.main.temp_max }
-    val minTemp = dias.minOf { it.main.temp_min }
+    val pronosticoAgrupadoPorDia = pronostico.groupBy {
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it.dt * 1000))
+    }.values.toList().take(5)
+
+    if (pronosticoAgrupadoPorDia.isEmpty()) return
+
+    val minTempGeneral = pronosticoAgrupadoPorDia.minOf { dia -> dia.minOf { it.main.temp_min } }
+    val maxTempGeneral = pronosticoAgrupadoPorDia.maxOf { dia -> dia.maxOf { it.main.temp_max } }
+    val tempRange = (maxTempGeneral - minTempGeneral).coerceAtLeast(1.0)
 
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
-            .background(Color(0xFFEAF2F8))
+            .height(150.dp)
+            .padding(vertical = 16.dp)
     ) {
         val ancho = size.width
         val alto = size.height
-        val espacio = ancho / (dias.size - 1)
+        val espacioEntrePuntos = ancho / (pronosticoAgrupadoPorDia.size - 1).coerceAtLeast(1)
 
         val pathMax = Path()
         val pathMin = Path()
 
-        dias.forEachIndexed { index, dia ->
-            val x = index * espacio
-            val yMax = alto - ((dia.main.temp_max - minTemp) / (maxTemp - minTemp) * alto).toFloat()
-            val yMin = alto - ((dia.main.temp_min - minTemp) / (maxTemp - minTemp) * alto).toFloat()
+        pronosticoAgrupadoPorDia.forEachIndexed { index, pronosticosDelDia ->
+            val tempMaxDelDia = pronosticosDelDia.maxOf { it.main.temp_max }
+            val tempMinDelDia = pronosticosDelDia.minOf { it.main.temp_min }
+
+            val x = index * espacioEntrePuntos
+            val yMax = alto - ((tempMaxDelDia - minTempGeneral) / tempRange * alto).toFloat()
+            val yMin = alto - ((tempMinDelDia - minTempGeneral) / tempRange * alto).toFloat()
 
             if (index == 0) {
                 pathMax.moveTo(x, yMax)
@@ -49,12 +58,11 @@ fun GraficoPronostico(pronostico: List<ListForecast>) {
                 pathMin.lineTo(x, yMin)
             }
 
-            // Puntos visibles
-            drawCircle(androidx.compose.ui.graphics.Color.Red, radius = 6f, center = Offset(x, yMax))
-            drawCircle(androidx.compose.ui.graphics.Color.Blue, radius = 6f, center = Offset(x, yMin))
+            drawCircle(Color.Red, radius = 8f, center = Offset(x, yMax))
+            drawCircle(Color.Blue, radius = 8f, center = Offset(x, yMin))
         }
 
-        drawPath(pathMax, color = androidx.compose.ui.graphics.Color.Red, style = Stroke(width = 4f))
-        drawPath(pathMin, color = androidx.compose.ui.graphics.Color.Blue, style = Stroke(width = 4f))
+        drawPath(pathMax, color = Color.Red, style = Stroke(width = 5f))
+        drawPath(pathMin, color = Color.Blue, style = Stroke(width = 5f))
     }
 }

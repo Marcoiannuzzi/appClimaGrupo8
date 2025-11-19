@@ -19,6 +19,7 @@ import com.grupo8.appclima.ui.theme.repositorio.modelos.ListForecast
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
 
 @Composable
 fun ClimaView(
@@ -76,19 +77,35 @@ fun ClimaView(
 
 @Composable
 fun DetalleClimaHoy(clima: Clima) {
+    val iconCode = clima.weather.firstOrNull()?.icon
+
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
+
+        Row(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Hoy", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            Text(text = "${clima.main.temp.toInt()}°C", fontSize = 48.sp, fontWeight = FontWeight.Bold)
-            Text(text = clima.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "No disponible")
-            Spacer(modifier = Modifier.height(8.dp))
-            Row {
-                Text(text = "Max: ${clima.main.temp_max.toInt()}°C")
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "Min: ${clima.main.temp_min.toInt()}°C")
+            // Columna para todo el texto a la izquierda
+            Column(modifier = Modifier.weight(1.5f)) {
+                Text(text = "Hoy", fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                Text(text = "${clima.main.temp.toInt()}°C", fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                Text(text = clima.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "No disponible")
+                Spacer(modifier = Modifier.height(8.dp))
+                Row {
+                    Text(text = "Max: ${clima.main.temp_max.toInt()}°C")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = "Min: ${clima.main.temp_min.toInt()}°C")
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            if (iconCode != null) {
+                AsyncImage(
+                    model = "https://openweathermap.org/img/wn/${iconCode}@4x.png",
+                    contentDescription = clima.weather.firstOrNull()?.description,
+                    modifier = Modifier.weight(1f).size(120.dp)
+                )
             }
         }
     }
@@ -96,43 +113,50 @@ fun DetalleClimaHoy(clima: Clima) {
 
 @Composable
 fun PronosticoProximosDias(pronostico: List<ListForecast>) {
-    // Agrupamos por día para no mostrar varias entradas para el mismo día
-    val pronosticoDiario = pronostico.distinctBy {
+    val pronosticoAgrupadoPorDia = pronostico.groupBy {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it.dt * 1000))
-    }
+    }.values.toList()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = "Próximos 5 días", fontSize = 20.sp, fontWeight = FontWeight.Medium)
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(pronosticoDiario) { forecast ->
-                PronosticoItem(forecast)
+            items(pronosticoAgrupadoPorDia.take(5)) { pronosticosDelDia ->
+                val tempMinCalculada = pronosticosDelDia.minOf { it.main.temp_min }.toInt()
+                val tempMaxCalculada = pronosticosDelDia.maxOf { it.main.temp_max }.toInt()
+                val forecastRepresentativo = pronosticosDelDia.first()
+
+                PronosticoItem(
+                    forecast = forecastRepresentativo,
+                    tempMinCalculada = tempMinCalculada,
+                    tempMaxCalculada = tempMaxCalculada
+                )
             }
         }
     }
 }
 
 @Composable
-fun PronosticoItem(forecast: ListForecast) {
-    val date = Date(forecast.dt * 1000) // Convertir de segundos a milisegundos
-    val diaFormatter = SimpleDateFormat("EEE", Locale.getDefault()) // "Mar"
-    val dia = diaFormatter.format(date)
+fun PronosticoItem(
+    forecast: ListForecast,
+    tempMinCalculada: Int,
+    tempMaxCalculada: Int
+) {
+    val date = Date(forecast.dt * 1000)
+    val diaFormatter = SimpleDateFormat("EEE", Locale("es", "ES"))
+    val dia = diaFormatter.format(date).replaceFirstChar { it.uppercase() }
 
     Card {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(12.dp).width(80.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = dia, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "${forecast.main.temp.toInt()}°C")
+            Text(text = "${forecast.main.temp.toInt()}°C", fontSize = 18.sp)
             Spacer(modifier = Modifier.height(4.dp))
-            Row {
-                Text(text = "Max: ${forecast.main.temp_max.toInt()}°", fontSize = 12.sp)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = "Min: ${forecast.main.temp_min.toInt()}°", fontSize = 12.sp)
-            }
+            Text(text = "${tempMaxCalculada}°/${tempMinCalculada}°", fontSize = 12.sp)
         }
     }
 }
